@@ -1,7 +1,6 @@
 import { validatePasswordChange } from './password'
 
 describe('validatePasswordChange', () => {
-  const mockTranslate = (str) => str
   const errors = {
     minLength: 'Password must be at least 8 characters long',
     hasLowerCase: 'Password must contain at least one lowercase letter',
@@ -14,32 +13,36 @@ describe('validatePasswordChange', () => {
     const result = validatePasswordChange({
       currentPassword: 'MyPassword123!',
       newPassword: 'MyPassword123!',
-      translate: mockTranslate,
+      messages: {
+        newPasswordMustDiffer:
+          'New password must be different from the current password.'
+      },
       config: { errors }
     })
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe('New password must be different from the current password.')
+    expect(result.error).toBe(
+      'New password must be different from the current password.'
+    )
     expect(result.field).toBe('newPassword')
     expect(result.strengthResult).toBeNull()
   })
 
   it('should use translate function for same password error', () => {
-    const mockTranslateFr = (str) => {
-      if (str === 'New password must be different from the current password.') {
-        return 'Le nouveau mot de passe doit être différent du mot de passe actuel.'
-      }
-      return str
-    }
     const result = validatePasswordChange({
       currentPassword: 'MyPassword123!',
       newPassword: 'MyPassword123!',
-      translate: mockTranslateFr,
+      messages: {
+        newPasswordMustDiffer:
+          'Le nouveau mot de passe doit être différent du mot de passe actuel.'
+      },
       config: { errors }
     })
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe('Le nouveau mot de passe doit être différent du mot de passe actuel.')
+    expect(result.error).toBe(
+      'Le nouveau mot de passe doit être différent du mot de passe actuel.'
+    )
     expect(result.field).toBe('newPassword')
   })
 
@@ -47,12 +50,13 @@ describe('validatePasswordChange', () => {
     const result = validatePasswordChange({
       currentPassword: 'MyPassword123!',
       newPassword: 'weak',
-      translate: mockTranslate,
       config: { errors }
     })
 
     expect(result.success).toBe(false)
-    expect(result.error).toContain('Password must be at least 8 characters long')
+    expect(result.error).toContain(
+      'Password must be at least 8 characters long'
+    )
     expect(result.field).toBe('newPassword')
     expect(result.strengthResult).not.toBeNull()
   })
@@ -61,7 +65,6 @@ describe('validatePasswordChange', () => {
     const result = validatePasswordChange({
       currentPassword: 'OldPassword123!',
       newPassword: 'NewPassword456!',
-      translate: mockTranslate,
       config: { errors }
     })
 
@@ -75,7 +78,11 @@ describe('validatePasswordChange', () => {
   it('should handle empty config', () => {
     const result = validatePasswordChange({
       currentPassword: 'OldPassword123!',
-      newPassword: 'OldPassword123!'
+      newPassword: 'OldPassword123!',
+      messages: {
+        newPasswordMustDiffer:
+          'New password must be different from the current password.'
+      }
     })
 
     expect(result.success).toBe(false)
@@ -88,7 +95,6 @@ describe('validatePasswordChange', () => {
     const result = validatePasswordChange({
       currentPassword: 'OldPassword',
       newPassword: 'NewPassword',
-      translate: mockTranslate,
       config: {
         rules: {
           length: 8,
@@ -110,7 +116,9 @@ describe('validatePasswordChange', () => {
       currentPassword: 'OldPassword123!',
       newPassword: 'NewPassword456!',
       repeatPassword: 'DifferentPassword789!',
-      translate: mockTranslate,
+      messages: {
+        passwordsDontMatch: 'Passwords do not match'
+      },
       config: { errors }
     })
 
@@ -125,7 +133,6 @@ describe('validatePasswordChange', () => {
       currentPassword: 'OldPassword123!',
       newPassword: 'NewPassword456!',
       repeatPassword: 'NewPassword456!',
-      translate: mockTranslate,
       config: { errors }
     })
 
@@ -139,7 +146,6 @@ describe('validatePasswordChange', () => {
     const result = validatePasswordChange({
       currentPassword: 'OldPassword123!',
       newPassword: 'NewPassword456!',
-      translate: mockTranslate,
       config: { errors }
     })
 
